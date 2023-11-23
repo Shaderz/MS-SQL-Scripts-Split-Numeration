@@ -5,21 +5,21 @@ RETURNS TABLE
 AS
 RETURN
 (
-
 WITH
 numbers AS (
-             SELECT n = 1, m=(select CHARINDEX(@delim, @input +@delim, 0))
+             SELECT n = 1, startpos=0, sublen=cast ((select CHARINDEX(@delim, @input + @delim, 0)  ) as int )
              UNION ALL
-             SELECT n + 1, m +  ((select CHARINDEX(@delim, @input + @delim, CHARINDEX(@delim, @input + @delim, m)+1) )-(select CHARINDEX(@delim, @input + @delim, m) ) )
+             SELECT n + 1, startpos +sublen,  sublen = cast (((select CHARINDEX(@delim, @input + @delim, CHARINDEX(@delim, @input + @delim, startpos+sublen)+1) )-(select CHARINDEX(@delim, @input + @delim, startpos+sublen) ) ) as int )
              FROM numbers
-             WHERE m <  LEN(@input+@delim) and  m>=0
+             WHERE startpos <  LEN(@input+@delim) and  startpos>=0
 ),
 
 parts  AS (
              SELECT
                     number = n
-                    ,m 
-                    ,part  = SUBSTRING(@input+ @delim, m+1, CHARINDEX(@delim, @input+@delim+@delim, m+1) - m-1)
+                    ,startpos
+                    ,sublen
+                    ,part  = SUBSTRING(@input+ @delim, startpos+1, CHARINDEX(@delim, @input+@delim+@delim, startpos+1) - startpos-1)
              FROM numbers
 )
 
@@ -28,11 +28,14 @@ SELECT
        ,part as strsplit
        ,len(part) as lenstr
        ,LEN(@input+@delim) as strlenght
-       ,m as delimpos
-       ,CHARINDEX(@delim, @input + @delim, m+1) as nextpos
+       ,startpos as delimpos
+       ,CHARINDEX(@delim, @input + @delim, startpos+1) as nextpos
+       ,sublen
 
 FROM parts
-where  CHARINDEX(@delim, @input + @delim, m+1) <>0
+
+where  CHARINDEX(@delim, @input + @delim, startpos+1) <>0
 --OPTION (MAXRECURSION 1000)
+
 
 );
