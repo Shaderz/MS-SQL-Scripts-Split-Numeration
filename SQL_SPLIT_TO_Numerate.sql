@@ -6,11 +6,11 @@ declare @m int =1;
 
 WITH
 numbers AS (
-             SELECT n = 1, m=(select CHARINDEX(',', @input + ',', 1))-(select CHARINDEX(',', @input + ',', 1))
+             SELECT n = 1, m=(select CHARINDEX(',', @input + ',', 1))
              UNION ALL
              SELECT n + 1, m +  ((select CHARINDEX(',', @input + ',', CHARINDEX(',', @input + ',', m)+1) )-(select CHARINDEX(',', @input + ',', m) ) )
              FROM numbers
-             WHERE m <  LEN(@input+',')
+             WHERE m <  LEN(@input+',') and m>=0
 ),
 
 parts  AS (
