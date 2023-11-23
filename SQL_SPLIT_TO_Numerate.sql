@@ -6,7 +6,7 @@ declare @m int =1;
 
 WITH
 numbers AS (
-             SELECT n = 1, m=(select CHARINDEX(',', @input + ',', 1))
+             SELECT n = 1, m=(select CHARINDEX(',', @input + ',', 0))
              UNION ALL
              SELECT n + 1, m +  ((select CHARINDEX(',', @input + ',', CHARINDEX(',', @input + ',', m)+1) )-(select CHARINDEX(',', @input + ',', m) ) )
              FROM numbers
